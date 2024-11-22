@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/usuarios")
@@ -30,7 +32,7 @@ public class UsuarioController {
                 usuarioRequest.nome(),
                 usuarioRequest.email(),
                 usuarioRequest.senha(),
-                null 
+                null
         );
 
         Usuario createdUsuario = usuarioService.createUsuario(usuario);
@@ -64,5 +66,39 @@ public class UsuarioController {
         );
 
         return new ResponseEntity<>(usuarioResponse, HttpStatus.OK);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<UsuarioResponse>> getAllUsuarios() {
+        List<UsuarioResponse> usuarios = usuarioService.getAllUsuarios()
+                .stream()
+                .map(usuario -> new UsuarioResponse(
+                        usuario.getIdUsuario(),
+                        usuario.getNome(),
+                        usuario.getEmail(),
+                        usuario.getDataCadastro()))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(usuarios);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUsuario(@PathVariable Integer id) {
+        usuarioService.deleteUsuario(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<UsuarioResponse>> searchByNome(@RequestParam String nome) {
+        List<UsuarioResponse> usuarios = usuarioService.searchByNome(nome)
+                .stream()
+                .map(usuario -> new UsuarioResponse(
+                        usuario.getIdUsuario(),
+                        usuario.getNome(),
+                        usuario.getEmail(),
+                        usuario.getDataCadastro()))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(usuarios);
     }
 }

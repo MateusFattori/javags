@@ -1,61 +1,67 @@
 package br.com.fiap.gsdevops.service;
 
-import java.util.Optional;
-
+import br.com.fiap.gsdevops.model.Usuario;
+import br.com.fiap.gsdevops.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import br.com.fiap.gsdevops.model.Credentials;
-import br.com.fiap.gsdevops.model.Token;
-import br.com.fiap.gsdevops.model.Usuario;
-import br.com.fiap.gsdevops.repository.UsuarioRepository;
+import java.util.List;
 
 @Service
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
-    private final TokenService tokenService;
+    private final TaskSender taskSender;
 
     @Autowired
-    public UsuarioService(UsuarioRepository usuarioRepository, TokenService tokenService) {
+    public UsuarioService(UsuarioRepository usuarioRepository, TaskSender taskSender) {
         this.usuarioRepository = usuarioRepository;
-        this.tokenService = tokenService;
+        this.taskSender = taskSender;
     }
 
-    public Token login(Credentials credentials) {
-        Usuario usuario = usuarioRepository.findByEmail(credentials.email())
-                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
-        if (usuario.getEmail().equals(credentials.email()) && usuario.getSenha().equals(credentials.password())) {
-            return tokenService.create(credentials);
-        } else {
-            throw new UsernameNotFoundException("Credenciais inválidas");
+    public Usuario createUsuario(Usuario usuario) {
+        if (usuarioRepository.existsByEmail(usuario.getEmail())) {
+            throw new RuntimeException("E-mail já cadastrado.");
         }
-    }
 
-    public Usuario getUserFromToken(String token) {
-        return tokenService.getUserFromToken(token); 
-    }
-
-        public Usuario createUsuario(Usuario usuario) {
         usuario.setSenha(new BCryptPasswordEncoder().encode(usuario.getSenha()));
-        return usuarioRepository.save(usuario);
+        Usuario usuarioSalvo = usuarioRepository.save(usuario);
+
+        String assunto = "Confirmação de Cadastro";
+        String mensagem = String.format("Olá %s, seu cadastro foi realizado com sucesso!", usuarioSalvo.getNome());
+        taskSender.sendEmailTask(usuarioSalvo.getEmail(), assunto, mensagem);
+
+        return usuarioSalvo;
     }
 
-    public Usuario updateUsuario(Long id, Usuario usuarioAtualizado) {
-        Usuario usuarioExistente = usuarioRepository.findById(id).orElseThrow(() -> 
-            new RuntimeException("Usuário não encontrado"));
+    public Usuario updateUsuario(Integer id, Usuario usuarioAtualizado) {
+        Usuario usuarioExistente = usuarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        if (usuarioRepository.existsByEmailAndIdUsuarioNot(usuarioAtualizado.getEmail(), id)) {
+            throw new RuntimeException("E-mail já cadastrado para outro usuário.");
+        }
 
         usuarioExistente.setNome(usuarioAtualizado.getNome());
         usuarioExistente.setEmail(usuarioAtualizado.getEmail());
-        usuarioExistente.setSenha(usuarioAtualizado.getSenha());
         usuarioExistente.setSenha(new BCryptPasswordEncoder().encode(usuarioAtualizado.getSenha()));
-        
+
         return usuarioRepository.save(usuarioExistente);
     }
 
-    public Optional<Usuario> findByEmail(String email) {
-        return usuarioRepository.findByEmail(email);
+    public void deleteUsuario(Integer id) {
+        if (!usuarioRepository.existsById(id)) {
+            throw new RuntimeException("Usuário não encontrado.");
+        }
+        usuarioRepository.deleteById(id);
+    }
+
+    public List<Usuario> getAllUsuarios() {
+        return usuarioRepository.findAll();
+    }
+
+    public List<Usuario> searchByNome(String nome) {
+        return usuarioRepository.findByNomeContainingIgnoreCase(nome);
     }
 }

@@ -22,12 +22,7 @@ public class AuthController {
         this.authService = authService;
         this.tokenService = tokenService;
     }
-
-    @PostMapping("/login")
-    public Token login(@RequestBody Credentials credentials){
-        return authService.login(credentials);
-    }
-
+    
     @PostMapping("/register")
     public ResponseEntity<Usuario> register(@RequestBody @Valid Usuario usuario) {
         Usuario createdUsuario = authService.registerUsuario(usuario);
