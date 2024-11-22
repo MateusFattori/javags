@@ -6,5 +6,6 @@ public record UsuarioResponse(
     Integer idUsuario,
     String nome,
     String email,
+    String senha,
     LocalDateTime dataCadastro
 ) {}

@@ -3,7 +3,10 @@ package br.com.fiap.gsdevops.controller;
 import br.com.fiap.gsdevops.model.dto.EmissaoRequest;
 import br.com.fiap.gsdevops.model.dto.EmissaoResponse;
 import br.com.fiap.gsdevops.service.EmissaoService;
+import groovy.util.logging.Slf4j;
+
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,6 +14,8 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/emissoes")
+@Validated
+@Slf4j
 public class EmissaoController {
 
     private final EmissaoService emissaoService;

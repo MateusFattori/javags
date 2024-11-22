@@ -1,61 +1,48 @@
 package br.com.fiap.gsdevops.auth;
 
 import br.com.fiap.gsdevops.model.Usuario;
-import br.com.fiap.gsdevops.service.AuthService;
-import br.com.fiap.gsdevops.service.TokenService;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.context.SecurityContextHolder;
+import br.com.fiap.gsdevops.service.UsuarioService;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.web.authentication.WebAuthenticationDetails;
-import org.springframework.stereotype.Component;
-import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Optional;
 
-@Component
-public class AuthorizationFilter extends OncePerRequestFilter {
+public class AuthorizationFilter extends BasicAuthenticationFilter {
 
-    private final AuthService authService;
-    private final TokenService tokenService;
+    private final UsuarioService usuarioService;
 
-    @Value("${jwt.secret}")
-    private String jwtSecret;
-
-    public AuthorizationFilter(AuthService authService, TokenService tokenService) {
-        this.authService = authService;
-        this.tokenService = tokenService;
+    public AuthorizationFilter(AuthenticationManager authenticationManager, UsuarioService usuarioService) {
+        super(authenticationManager);
+        this.usuarioService = usuarioService;
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, jakarta.servlet.http.HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
-        
-        String token = extractToken(request);
-        
-        if (token != null && !token.isEmpty()) {
-            try {
-                Usuario usuario = authService.validateToken(token);
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
 
-                SecurityContextHolder.getContext().setAuthentication(
-                    new UsernamePasswordAuthenticationToken(usuario, null, null)
-                );
-            } catch (Exception e) {
-                response.setStatus(401);
-                response.getWriter().write("Token inválido");
-                return;
+        String email = request.getParameter("email");
+
+        if (email != null) {
+            Optional<Usuario> usuarioOptional = usuarioService.findByEmail(email);
+
+            if (usuarioOptional.isPresent()) {
+                Usuario usuario = usuarioOptional.get();
+                String emailUsuario = usuario.getEmail();
+                String senhaUsuario = usuario.getSenha();
+
+                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                        emailUsuario, senhaUsuario, null);
+                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
             }
         }
-        
-        filterChain.doFilter(request, response);
-    }
 
-    private String extractToken(HttpServletRequest request) {
-        String header = request.getHeader("Authorization");
-        if (header != null && header.startsWith("Bearer ")) {
-            return header.substring(7);
-        }
-        return null;
+        chain.doFilter(request, response);
     }
 }

@@ -3,7 +3,10 @@ package br.com.fiap.gsdevops.controller;
 import br.com.fiap.gsdevops.model.dto.CombustivelRequest;
 import br.com.fiap.gsdevops.model.dto.CombustivelResponse;
 import br.com.fiap.gsdevops.service.CombustivelService;
+import groovy.util.logging.Slf4j;
+
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,6 +14,8 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/combustiveis")
+@Validated
+@Slf4j
 public class CombustivelController {
 
     private final CombustivelService combustivelService;

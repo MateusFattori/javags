@@ -1,7 +1,7 @@
 package br.com.fiap.gsdevops.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,13 +23,15 @@ public class Combustivel {
     @SequenceGenerator(name = "SEQ_COMBUSTIVEL", sequenceName = "SEQ_COMBUSTIVEL", allocationSize = 1)
     private Integer idCombustivel;
 
+    @NotBlank(message = "{combustivel.tipo.notblank}")
     @Column(name = "TIPO_COMBUSTIVEL", nullable = false)
     private String tipoCombustivel;
 
+    @NotNull(message = "{combustivel.fator.notnull}")
     @Column(name = "FATOR_EMISSAO", nullable = false)
     private Double fatorEmissao;
 
-    @AssertTrue(message = "O fator de emissão deve ser um dos valores permitidos: 2.31, 2.68, 1.86, 2.00 ou 0.0")
+    @AssertTrue(message = "{combustivel.fator.invalido}")
     public boolean isFatorEmissaoValido() {
         return FATORES_VALIDOS.contains(fatorEmissao);
     }

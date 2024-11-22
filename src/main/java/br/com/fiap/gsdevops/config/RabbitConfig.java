@@ -9,14 +9,11 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitConfig {
 
-    // Nome da fila
     public static final String TASK_QUEUE = "user_registration_queue";
-    // Exchange padrão (não configurada)
     public static final String EXCHANGE = null;
 
     @Bean
     public Queue taskQueue() {
-        // Criação da fila persistente
         return new Queue(TASK_QUEUE, true);
     }
 }

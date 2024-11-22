@@ -1,31 +1,32 @@
 package br.com.fiap.gsdevops.controller;
 
 import br.com.fiap.gsdevops.model.Credentials;
-import br.com.fiap.gsdevops.model.Token;
-import br.com.fiap.gsdevops.model.Usuario;
 import br.com.fiap.gsdevops.service.AuthService;
-import br.com.fiap.gsdevops.service.TokenService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import groovy.util.logging.Slf4j;
 
-import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
+@Validated
+@Slf4j
 public class AuthController {
 
     private final AuthService authService;
-    private final TokenService tokenService;
 
-    public AuthController(AuthService authService, TokenService tokenService) {
+    public AuthController(AuthService authService) {
         this.authService = authService;
-        this.tokenService = tokenService;
     }
-    
-    @PostMapping("/register")
-    public ResponseEntity<Usuario> register(@RequestBody @Valid Usuario usuario) {
-        Usuario createdUsuario = authService.registerUsuario(usuario);
-        return new ResponseEntity<>(createdUsuario, HttpStatus.CREATED);
+
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody Credentials credentials) {
+        try {
+            authService.authenticate(credentials);
+            return ResponseEntity.ok("Usuário autenticado com sucesso!");
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body("Credenciais inválidas");
+        }
     }
 }

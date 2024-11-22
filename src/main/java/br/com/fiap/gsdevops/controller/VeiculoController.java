@@ -3,9 +3,12 @@ package br.com.fiap.gsdevops.controller;
 import br.com.fiap.gsdevops.model.dto.VeiculoRequest;
 import br.com.fiap.gsdevops.model.dto.VeiculoResponse;
 import br.com.fiap.gsdevops.service.VeiculoService;
+import groovy.util.logging.Slf4j;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
@@ -14,6 +17,8 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/veiculos")
+@Validated
+@Slf4j
 public class VeiculoController {
 
     private static final Logger logger = LoggerFactory.getLogger(VeiculoController.class);
