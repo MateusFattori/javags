@@ -37,22 +37,22 @@ public class SecurityConfig {
 
                         // Endpoints de viagens
                         .requestMatchers(HttpMethod.GET, "/viagens").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/viagens").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/viagens").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/viagens/{id}").authenticated()
 
                         // Endpoints de veículos
                         .requestMatchers(HttpMethod.GET, "/veiculos").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/veiculos").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/veiculos").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/veiculos/{id}").authenticated()
 
                         // Endpoints de emissões
                         .requestMatchers(HttpMethod.GET, "/emissoes").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/emissoes").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/emissoes").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/emissoes/{id}").authenticated()
 
                         // Endpoints de combustíveis
                         .requestMatchers(HttpMethod.GET, "/combustiveis").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/combustiveis").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/combustiveis").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/combustiveis/{id}").authenticated()
 
                         .requestMatchers("/error").permitAll()

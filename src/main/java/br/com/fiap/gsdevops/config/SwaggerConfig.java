@@ -24,6 +24,7 @@ public class SwaggerConfig {
                         .version("1.0")
                         .description("API para gerenciamento da GS de Java e DevOps"))
                 .addSecurityItem(new SecurityRequirement().addList("basicAuth"))
-                .components(new io.swagger.v3.oas.models.Components().addSecuritySchemes("basicAuth", securityScheme));
+                .components(new io.swagger.v3.oas.models.Components()
+                        .addSecuritySchemes("basicAuth", securityScheme));
     }
 }
